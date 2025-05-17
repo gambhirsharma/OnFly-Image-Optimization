@@ -1,4 +1,4 @@
-import React from 'react';
+import DisplayUpload from "@/components/DisplayUpload";
 
 interface ImagePageProps {
   
@@ -7,7 +7,7 @@ interface ImagePageProps {
 const ImagePage: React.FC<ImagePageProps> = ({  }) => {
   return (
     <div>
-      <p>Image Page</p>
+            <DisplayUpload/>
     </div>
   );
 };

@@ -62,7 +62,7 @@ export async function GET(
          // .from('upload-image')
          // .download(`images/picnew.jpeg`);
 
-        console.log(`image data: ${imageData}`)
+        // console.log(`image data: ${imageData}`)
 
         //const Img = imageData?.arrayBuffer();
         // const imageBuffer = await imageData?.arrayBuffer();

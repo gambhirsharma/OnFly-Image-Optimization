@@ -2,6 +2,7 @@
 import { Dropzone, DropzoneContent, DropzoneEmptyState } from '@/components/dropzone'
 import { useSupabaseUpload } from '@/hooks/use-supabase-upload'
 import UploadCard from './UploadCard'
+import { useEffect, useState } from 'react'
 
 const FileUpload = () => {
   const props = useSupabaseUpload({
@@ -11,6 +12,13 @@ const FileUpload = () => {
     maxFiles: 2,
     maxFileSize: 1000 * 1000 * 10, // 10MB,
   })
+
+ const [origin, setOrigin] = useState('')
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setOrigin(window.location.origin)
+    }
+  }, [])
 
 
   return (
@@ -28,7 +36,7 @@ const FileUpload = () => {
             <ul>
               {props.fileUrls && props.fileUrls.map((fileUrl) => (
                 <li key={fileUrl.name}>
-                  <UploadCard url={fileUrl.signUrl} name={fileUrl.name} imageUrl={`http://localhost:3000/img/${fileUrl.idUrl}`} />
+                  <UploadCard url={fileUrl.signUrl} name={fileUrl.name} imageUrl={`${origin}/img/${fileUrl.idUrl}`} />
                 </li>
               ))}
             </ul>

@@ -27,11 +27,11 @@ const UploadCard = ({ url, imageUrl, name }: uploadCardProps) => {
           <h3 className="text-lg font-medium truncate">File Preview</h3>
         </div>
 
-        <div className="flex justify-center p-4 bg-gray-100">
+        <div className="flex justify-center p-4 bg-gray-100 h-80">
           <Image
             src={url}
             alt={name}
-            className="object-contain max-h-64"
+            className="object-contain h-full w-full"
             width={64}
             height={64}
           />

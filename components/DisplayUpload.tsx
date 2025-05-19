@@ -65,12 +65,13 @@ const DisplayUpload: React.FC<DisplayUploadProps> = ({  }) => {
   console.log(dataList)
 
   return (
-    
-
     <div>
       {error && <div>Error: {error}</div>}
       {dataList.length > 0 ? (
-        <div>
+        <div className='  grid gap-4
+          grid-cols-1      /* 1 col on mobile */
+          md:grid-cols-2   /* 2 cols ≥768px */
+          lg:grid-cols-3   /* 3 cols ≥1024px */'>
           {dataList.slice(1).map((item: imageListProps , index:number) => (
             <li className='list-none' key={index}>
             <UploadCard  url={item.url.signedUrl} imageUrl={`https://localhost:3000/image/${item.id}`} name={item.name} />

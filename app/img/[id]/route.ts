@@ -1,4 +1,4 @@
-// app/image/[id]/route.ts
+// app/img/[id]/route.ts
 //import { createClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
 import { NextRequest, NextResponse } from 'next/server';
@@ -17,11 +17,11 @@ export async function GET(
   const url = new URL(request.url);
 
   // ✅ extract the ID manually from the pathname
-  const pathMatch = url.pathname.match(/\/image\/([^\/]+)/);
+  const pathMatch = url.pathname.match(/\/img\/([^\/]+)/);
   const imageId = pathMatch?.[1];
 
   if (!imageId) {
-    return new NextResponse(JSON.stringify({ error: 'Image ID not found in URL' }), {
+    return new NextResponse(JSON.stringify({ error: 'Image ID not found in URL', id: imageId }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });

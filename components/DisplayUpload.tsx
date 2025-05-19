@@ -74,7 +74,7 @@ const DisplayUpload: React.FC<DisplayUploadProps> = ({  }) => {
           lg:grid-cols-3   /* 3 cols ≥1024px */'>
           {dataList.slice(1).map((item: imageListProps , index:number) => (
             <li className='list-none' key={index}>
-            <UploadCard  url={item.url.signedUrl} imageUrl={`https://localhost:3000/image/${item.id}`} name={item.name} />
+            <UploadCard  url={item.url.signedUrl} imageUrl={`http://localhost:3000/img/${item.id}`} name={item.name} />
             </li>
           ))}
         </div>

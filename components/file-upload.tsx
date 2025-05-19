@@ -28,7 +28,7 @@ const FileUpload = () => {
             <ul>
               {props.fileUrls && props.fileUrls.map((fileUrl) => (
                 <li key={fileUrl.name}>
-                  <UploadCard url={fileUrl.signUrl} name={fileUrl.name} imageUrl={`http://localhost:3000/image/${fileUrl.idUrl}`} />
+                  <UploadCard url={fileUrl.signUrl} name={fileUrl.name} imageUrl={`http://localhost:3000/img/${fileUrl.idUrl}`} />
                 </li>
               ))}
             </ul>

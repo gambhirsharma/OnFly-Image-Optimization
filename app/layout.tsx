@@ -3,8 +3,7 @@ import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import TopNav from "@/components/TopNav";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -43,18 +42,7 @@ export default function RootLayout({
                     <div className="flex items-center gap-2">
                       Supabase on-fly Image optimizer
                     </div>
-                    <div className="flex gap-2">
-                      <Link href='/image'>
-                      <Button >
-                        Image
-                      </Button>
-                      </Link>
-                      <Link href='/protected'>
-                      <Button>
-                        Upload
-                      </Button>
-                      </Link>
-                    </div>
+                    <TopNav/>
                   </div>
                   <HeaderAuth />
                 </div>

@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         hostname: 'iletliexcvmddqyckwgg.supabase.co',
         pathname: '/storage/v1/object/sign/upload-image/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'supabase-onfly.vercel.app',
+        pathname: '/img/**',
+      },
+
     ],
   },
 };

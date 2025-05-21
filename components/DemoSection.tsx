@@ -8,11 +8,27 @@ interface DemoSectionProps {
 }
 
 const DemoSection: React.FC<DemoSectionProps> = ({  }) => {
-  const [height, setHeight] = useState<number>(100)
-  const [width, setWidth] = useState<number>(100)
+  const [height, setHeight] = useState<number>(250)
+  const [width, setWidth] = useState<number>(400)
   const [quality, setQuality] = useState<number>(80)
 
   let  baseUrl = `https://supabase-onfly.vercel.app/img/5f4393f6-91c0-466a-8c86-ba3c5eea387b?h=${height}&w=${width}&q=${quality}` 
+
+  // setting up blurDataURL
+  const keyStr =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+const triplet = (e1: number, e2: number, e3: number) =>
+  keyStr.charAt(e1 >> 2) +
+  keyStr.charAt(((e1 & 3) << 4) | (e2 >> 4)) +
+  keyStr.charAt(((e2 & 15) << 2) | (e3 >> 6)) +
+  keyStr.charAt(e3 & 63);
+
+const rgbDataURL = (r: number, g: number, b: number) =>
+  `data:image/gif;base64,R0lGODlhAQABAPAA${
+    triplet(0, r, g) + triplet(b, 255, 255)
+  }/yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==`;
+
   return (
     <div>
           <div className="mx-auto mt-12 grid max-w-6xl gap-8 lg:grid-cols-2">
@@ -89,7 +105,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({  }) => {
                         <span className="truncate">{baseUrl}</span>
                       </div>
                     </div>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 sm:grid-cols-2 ">
                       <div className="grid gap-2">
                         <label htmlFor="width" className="text-sm font-medium">
                           Width (px)
@@ -101,7 +117,7 @@ const DemoSection: React.FC<DemoSectionProps> = ({  }) => {
                         <label htmlFor="height" className="text-sm font-medium">
                           Height (px)
                         </label>
-                        <input id="height" type="range" min="50" max="800" value={height} className="w-full" onChange={e => setWidth(Number(e.currentTarget.value))} />
+                        <input id="height" type="range" min="50" max="800" value={height} className="w-full" onChange={e => setHeight(Number(e.currentTarget.value))} />
                         <div className="text-right text-sm">{`${height}px`}</div>
                       </div>
                     </div>
@@ -113,12 +129,15 @@ const DemoSection: React.FC<DemoSectionProps> = ({  }) => {
                       <div className="text-right text-sm">{quality}</div>
                     </div>
                     <div className="rounded-md border p-1">
-                      <Image
-                        src={baseUrl}
-                        alt="Preview"
-                        width={400}
-                        height={300}
-                        className="h-auto w-full rounded object-cover"
+                  <Image
+                    src={baseUrl}
+                    alt="Preview"
+                    width={768}
+                    height={480}
+                    blurDataURL={rgbDataURL(146, 168, 232)}
+                    className="h-auto w-full rounded object-cover"
+                    placeholder="blur"
+                    quality={100}
                       />
                     </div>
                     <div className="flex items-center gap-2 rounded-md bg-muted p-2 font-mono text-xs">

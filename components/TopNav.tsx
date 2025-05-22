@@ -14,6 +14,12 @@ const TopNav: React.FC<TopNavProps> = ({  }) => {
   console.log(`pathname: ${pathname}`)
   const isActive = (path: string) => pathname === path;
 
+  if(pathname === '/'){
+    return (
+      <></>
+    )
+ }
+
   return (
     <div>
       <div className="flex gap-2">

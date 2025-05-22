@@ -12,8 +12,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Supabase onfly!!",
-  description: "host you image here!!",
+  title: "Onfly Image",
+  description: "Optimize your image on go",
 };
 
 const geistSans = Geist({
@@ -43,7 +43,7 @@ export default function RootLayout({
                   <div className="flex gap-5 items-center font-semibold">
                     <Link href="/" className="flex items-center gap-2">
                     <div className="flex items-center gap-2">
-                      Supabase on-fly Image optimizer
+                        On Fly Image
                     </div>
                     </Link>
                     <TopNav/>

@@ -88,3 +88,68 @@ This project hooks into Supabase Storage and intercepts image requests to automa
     # or
     pnpm install
     ```
+
+3. **Configure environment**
+   Create a Supabase project and add the API keys
+
+   Copy .env.example → .env.local and fill in your Supabase URL/Key:
+   ```bash 
+   NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   ```
+
+### Running Locally
+   ```bash
+   npm run dev
+   # or
+   pnpm dev
+   ```
+   Open http://localhost:3000 to see it in action.
+
+# 💡 Usage
+
+Once deployed, request any image via:
+
+```url
+https://your-deploy-url/api/optimize?url=https://your-bucket.s3.supabase.co/path/to/image.jpg&width=800
+```
+The middleware will:
+
+1. Fetch the original from Supabase Storage
+2. Resize & compress (using Sharp)
+3. Respond with optimized image + cache headers
+
+For full API details, see [API_REFERENCE.md](API_REFERENCE.md) 
+
+# 📦 Deployment
+Hosted on Vercel (automatic GitHub integration)
+
+Branch: main → auto-deploy on push
+
+> Current Deploy:
+> https://your-vercel-url.vercel.app
+
+# 🤝 Contributing
+Contributions are welcome! Please read below:
+
+0. Fork the project
+0. Create your feature branch (git checkout -b feat/YourFeature)
+0. Commit your changes (git commit -m 'feat: add amazing feature')
+0. Push to the branch (git push origin feat/YourFeature)
+0. Open a Pull Request
+
+Check [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines on commit messages, code style, and issue templates.
+
+# 📝 Commits & Changelog
+We use Conventional Commits.
+See CHANGELOG.md for a full history.
+
+# 📄 License
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
+
+# 📬 Contact
+Created by Gambhir Sharma – feel free to reach out!
+
+* Email: gambhir786191ss@gmail[dot]com
+* Twitter: [@gambhir_sharma](https://www.x.comgambhir_sharma)
+* Website: https://gambhir.dev

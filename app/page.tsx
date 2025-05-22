@@ -84,9 +84,6 @@ export default function Home() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <Upload className="h-8 w-8 text-primary" />
-                <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  1
-                </span>
               </div>
               <h3 className="text-xl font-bold">Upload Your Image</h3>
               <p className="text-muted-foreground">
@@ -96,9 +93,6 @@ export default function Home() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <Sliders className="h-8 w-8 text-primary" />
-                <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  2
-                </span>
               </div>
               <h3 className="text-xl font-bold">Add URL Parameters</h3>
               <p className="text-muted-foreground">
@@ -108,9 +102,6 @@ export default function Home() {
             <div className="flex flex-col items-center space-y-4 text-center">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                 <Download className="h-8 w-8 text-primary" />
-                <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  3
-                </span>
               </div>
               <h3 className="text-xl font-bold">Use Optimized Image</h3>
               <p className="text-muted-foreground">

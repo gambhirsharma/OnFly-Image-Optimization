@@ -4,7 +4,7 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/gambhirsharma/OnFly-Image-Optimization)
 ![GitHub issues](https://img.shields.io/github/issues/gambhirsharma/OnFly-Image-Optimization)
 ![License](https://img.shields.io/github/license/gambhirsharma/OnFly-Image-Optimization)
-![Vercel](https://img.shields.io/vercel/deployment/your-vercel-project)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
 
 ![image](https://github.com/user-attachments/assets/e979cc6c-b0f9-4155-9380-0f9e38da5d67)
@@ -19,7 +19,7 @@
 
 A **Next.js + Supabase** image-optimization service that dynamically compresses and serves your images on the fly.
 
-Live demo: [your-vercel-url.vercel.app](https://your-vercel-url.vercel.app)
+Live demo: [supabase-onfly.vercel.app](https://supabase-onfly.vercel.app)
 
 ---
 
@@ -127,7 +127,7 @@ Hosted on Vercel (automatic GitHub integration)
 Branch: main → auto-deploy on push
 
 > Current Deploy:
-> https://your-vercel-url.vercel.app
+> https://supabase-onfly.vercel.app
 
 # 🤝 Contributing
 Contributions are welcome! Please read below:

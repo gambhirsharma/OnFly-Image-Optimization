@@ -2,7 +2,7 @@
 # https://supabase.com/docs/guides/local-development/cli/config
 # A string used to distinguish different Supabase projects on the same host. Defaults to the
 # working directory name when running `supabase init`.
-project_id = "supbase-nextjs-test"
+project_id = "OnFly-Image-Optimization"
 
 [api]
 enabled = true
@@ -307,13 +307,13 @@ s3_access_key = "env(S3_ACCESS_KEY)"
 # Configures AWS_SECRET_ACCESS_KEY for S3 bucket
 s3_secret_key = "env(S3_SECRET_KEY)"
 
-[functions.image-blur]
+[functions.imgs]
 enabled = true
 verify_jwt = true
-import_map = "./functions/image-blur/deno.json"
+import_map = "./functions/imgs/deno.json"
 # Uncomment to specify a custom file path to the entrypoint.
 # Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
-entrypoint = "./functions/image-blur/index.ts"
+entrypoint = "./functions/imgs/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
-# static_files = [ "./functions/image-blur/*.html" ]
+# static_files = [ "./functions/imgs/*.html" ]

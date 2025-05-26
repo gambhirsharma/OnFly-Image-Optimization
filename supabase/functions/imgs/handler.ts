@@ -1,53 +1,110 @@
-// import { createClient } from "./supabase";
+import { createClient } from 'jsr:@supabase/supabase-js@2'
+import {
+  ImageMagick,
+  initializeImageMagick,
+  MagickFormat,
+} from "npm:@imagemagick/magick-wasm@0.0.30";
+
 
 const supabase =  createClient(
-  Deno.env.get('SUPABASE_URL') ?? '', 
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  Deno.env.get('MY_SUPABASE_URL') ?? '', 
+  Deno.env.get('MY_SUPABASE_SERVICE_ROLE_KEY') ?? ''
   )
-// const supabase = createClient()
+
 export const handler = async (req: Request) => {
-  // Get the URL object
+  // int the imagemagick libarary
+  const wasmBytes = await Deno.readFile(
+    new URL("magick.wasm", import.meta.resolve("npm:@imagemagick/magick-wasm@0.0.30"))
+  );
+  await initializeImageMagick(wasmBytes);
+
+  // 1. Get the data from the URL
    const url = new URL(req.url);
-   // Extract the path parts - the path will be like "/imgs/adflad"
    const pathParts = url.pathname.split('/');
-   // The ID will be the last part after "/imgs/"
    const imageId = pathParts[pathParts.length - 1];
-   // Get query parameters
-   const params = Object.fromEntries(url.searchParams.entries());
+   // const params = Object.fromEntries(url.searchParams.entries());
+  const searchParams = url.searchParams;
 
+    // Query transformation parameters
+  const width = searchParams.get('w') ? parseInt(searchParams.get('w')!) : null;
+  const height = searchParams.get('h') ? parseInt(searchParams.get('h')!) : null;
+  const formatParam = searchParams.get('format') || 'webp';
+  const quality = searchParams.get('q') ? parseInt(searchParams.get('q')!) : 80;
+  const fit = searchParams.get('fit') || 'cover';
 
-  // 2. find the image form the db
-  // const { data: imageAsset, error: dbError } = await supabase
-  // .from('image_assets')
-  // .select('file_path')
-  // .eq('id', imageId)
-  // .single();
-   
-   
-   // Combine the data
-   // const responseData = {
-   //   imageId,
-   //   params,
-   //   // Include any JSON body data if present
-   //   // body: req.headers.get('content-type')?.includes('application/json') 
-   //     // ? await req.json().catch(() => ({})) 
-   //     // : {}
-   // };
-  const responseData = {
-    message: "It's all working"
+  if(!imageId){
+    return new Response(
+      JSON.stringify({error: "Image Id not found in the URL"}), {
+        status: 400
+      }
+    )
   }
 
-  // 1. get the id & parameters from the url
-  // const data = {
-  //   message: `Hello ${name}!`,
+  // 2. find the image form the db
+  const { data: imagePath, error: dbError } = await supabase
+  .from('image_assets')
+  .select('file_path')
+  .eq('id', imageId)
+  .single();
+
+  // const responseData = {
+  //   message: "Working", 
+  //   path:imagePath 
   // }
 
-  return new Response(
-    // JSON.stringify(data),
-    // JSON.stringify({data}),
-     JSON.stringify(responseData),
-    { headers: { "Content-Type": "application/json" } },
-  )
+  if(dbError){
+    return new Response(
+      JSON.stringify({message: `Error: ${dbError.message}`, id: imageId}),
+      {status: 500}
+    )
+  }
+
+  // 3. Get the image for the bucket
+  const { data: imageData, error: storageError } = await supabase
+    .storage
+    .from('upload-image')
+    .download(imagePath.file_path);
+
+  if(storageError || !imageData){
+    return new Response(JSON.stringify({
+      error: storageError.message,
+      path: imagePath.file_path
+    }), {status: 500})
+  }
+
+  const inputBuffer = new Uint8Array(await imageData.arrayBuffer());
+
+  // 4. Transform image
+  const outputBuffer = ImageMagick.read(inputBuffer, (img) => {
+    // Resize with optional fit
+    if (width || height) {
+      if (fit === 'cover' && width && height) {
+        img.resize(width, height);
+        img.crop(width, height, 0, 0);
+      } else {
+        img.resize(width ?? 0, height ?? 0);
+      }
+    }
+    // TODO: add the quality param feature
+    //
+    // Set quality
+    // img.quality(quality);
+    // Write out in requested format
+    return img.write((data) => data, MagickFormat[formatParam.toUpperCase() as keyof typeof MagickFormat]);
+  });
+
+  // 5. Return transformed image
+  const contentTypeMap: Record<string, string> = {
+    webp: 'image/webp',
+    png: 'image/png',
+    jpeg: 'image/jpeg',
+    jpg: 'image/jpeg',
+  };
+  const contentType = contentTypeMap[formatParam.toLowerCase()] || 'application/octet-stream';
+
+  return new Response(outputBuffer, {
+    headers: { 'Content-Type': contentType }
+  });
 }
 
 

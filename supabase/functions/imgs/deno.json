@@ -1,3 +1,7 @@
 {
-  "imports": {}
+  "imports": {
+    "jsr:@supabase/supabase-js@2": "https://esm.sh/@supabase/supabase-js@2",
+    "npm:@imagemagick/magick-wasm@0.0.30": "https://esm.sh/@imagemagick/magick-wasm@0.0.30"
+  }
 }
+

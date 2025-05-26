@@ -3,7 +3,8 @@
   "git": {
     "deploymentEnabled": {
       "dev": false,
-      "docs": false
+      "docs": false,
+      "gh": false
     }
   }
 }

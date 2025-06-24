@@ -1,0 +1,6 @@
+postgresql:
+  username: postgres
+  password: postgrespassword
+  database: mydatabase
+  replication:
+    enabled: false

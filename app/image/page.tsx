@@ -1,4 +1,3 @@
-'use client'
 import DisplayUpload from "@/components/DisplayUpload";
 
 interface ImagePageProps {

@@ -1,0 +1,26 @@
+repositories:
+  # - name: kubernetes-dashboard
+    # url: https://kubernetes.github.io/dashboard
+
+  # - name: bitnami
+  #   url: https://charts.bitnami.com/bitnami
+
+releases:
+
+  - name: front-end
+    namespace: front-end
+    chart: ./charts/front-end/
+    installed: true
+
+  - name: kubernetes-dashboard
+    namespace: kubernetes-dashboard
+    chart: kubernetes-dashboard/kubernetes-dashboard
+    installed: false
+
+  - name: supabase
+    chart: bitnami/supabase
+    namespace: supabase
+    # version: 5.3.6
+    installed: false
+    values: 
+      - ./charts/supabase/values.yaml

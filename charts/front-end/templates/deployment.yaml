@@ -44,7 +44,7 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          command: ["/entrypoint.sh"]
+          command: ["/entry.sh"]
           args: ["node", "server.js"]
           env: 
             {{- toYaml .Values.env | nindent 12 }}

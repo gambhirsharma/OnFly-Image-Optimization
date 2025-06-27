@@ -24,8 +24,8 @@ COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
 # ⬇️ Use placeholder envs to build safely (do NOT use real secrets)
-ENV NEXT_PUBLIC_SUPABASE_URL=https://example.co
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=example_new
+ENV NEXT_PUBLIC_SUPABASE_URL=https://deja__gu__nod.co
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=deja__gu__nod
 
 RUN pnpm build
 
@@ -52,8 +52,8 @@ COPY --from=build --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=build --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # ✅ Copy entrypoint script and make it executable
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+COPY entry.sh /entry.sh
+RUN chmod +x /entry.sh
 
 # Use the non-root user from now on
 USER nextjs
@@ -62,7 +62,7 @@ EXPOSE $PORT
 ENV HOSTNAME="0.0.0.0"
 
 # ✅ Runtime env injection
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entry.sh"]
 
 # ✅ Default command to start the server
 CMD ["node", "server.js"]

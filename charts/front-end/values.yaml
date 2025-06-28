@@ -9,7 +9,7 @@ replicaCount: 1
 image:
   repository: supabase-onfly
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 57490c4
+  tag: b092c66
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
 

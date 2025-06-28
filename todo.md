@@ -4,6 +4,16 @@
      > Note:  keeping the upload in the `/protected` route 
 
 ## Core
-    - [ ] Implement this in supabase functions and Vercel edge functions
+    - [x] Implement this in supabase functions and Vercel edge functions 
     - [ ] add image to `output-image` bucket and delete it only after 3-4 days
     - [ ] cache the image in the browser for 3-4 days
+
+# Working on
+- [x]  fix the UI
+    - [x] Implement this in supabase functions and Vercel edge functions 
+
+- [ ] DevOps
+    - [ ] Use [Build time envs](https://github.com/expatfile/next-runtime-env/blob/development/docs/EXPOSING_CUSTOM_ENV.md) in nextjs docker image.
+    - [ ] configure supabase helmchart with `front-end` deployment
+    - [ ] Add Argo-cd
+    - [] GitHub Actions

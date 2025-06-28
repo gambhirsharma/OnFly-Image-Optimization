@@ -4,7 +4,9 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/gambhirsharma/OnFly-Image-Optimization)
 ![GitHub issues](https://img.shields.io/github/issues/gambhirsharma/OnFly-Image-Optimization)
 ![License](https://img.shields.io/github/license/gambhirsharma/OnFly-Image-Optimization)
+</br>
 ![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
 
 
 ![image](https://github.com/user-attachments/assets/e979cc6c-b0f9-4155-9380-0f9e38da5d67)

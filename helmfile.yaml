@@ -2,15 +2,15 @@ repositories:
   # - name: kubernetes-dashboard
     # url: https://kubernetes.github.io/dashboard
 
-  # - name: bitnami
-  #   url: https://charts.bitnami.com/bitnami
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
 
 releases:
 
   - name: front-end
     namespace: front-end
     chart: ./charts/front-end/
-    installed: true
+    installed: false
 
   - name: kubernetes-dashboard
     namespace: kubernetes-dashboard
@@ -20,7 +20,11 @@ releases:
   - name: supabase
     chart: bitnami/supabase
     namespace: supabase
-    # version: 5.3.6
+    version: 5.3.6
+    createNamespace: false
     installed: false
     values: 
       - ./charts/supabase/values.yaml
+    set:
+      - name: jwt.secret
+        value: "openssl rand 64 | base64" # add the value 

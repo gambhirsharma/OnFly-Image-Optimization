@@ -1,16 +1,30 @@
 repositories:
   # - name: kubernetes-dashboard
     # url: https://kubernetes.github.io/dashboard
+  - name: argo
+    url: https://argoproj.github.io/argo-helm
 
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
 
 releases:
-
   - name: front-end
     namespace: front-end
     chart: ./charts/front-end/
     installed: false
+
+  - name: argocd
+    namespace: argocd
+    chart: argo/argo-cd
+    version: 5.51.6 # or the latest version
+    createNamespace: true
+    installed: true
+    values:
+      - configs:
+          cm:
+            application.resourceTrackingMethod: annotation
+            # Optional extra config
+            exec.enabled: true
 
   - name: kubernetes-dashboard
     namespace: kubernetes-dashboard

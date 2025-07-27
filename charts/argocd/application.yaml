@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-front-end
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: 'https://github.com/gambhirsharma/OnFly-Image-Optimization'
+    targetRevision: main
+    path: './charts/front-end'
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: front-end         # Target namespace
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

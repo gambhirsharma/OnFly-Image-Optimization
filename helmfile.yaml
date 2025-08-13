@@ -1,30 +1,86 @@
 repositories:
-  # - name: kubernetes-dashboard
-    # url: https://kubernetes.github.io/dashboard
+  - name: kubernetes-dashboard
+    url: https://kubernetes.github.io/dashboard
+
+  # - name: ingress-nginx
+  #   url: https://kubernetes.github.io/ingress-nginx
+
   - name: argo
     url: https://argoproj.github.io/argo-helm
+
+  - name: prometheus-community
+    url: https://prometheus-community.github.io/helm-charts
 
   - name: bitnami
     url: https://charts.bitnami.com/bitnami
 
 releases:
+  - name: prometheus
+    namespace: monitoring 
+    chart: prometheus-community/kube-prometheus-stack
+    version: "75.15.1" 
+    installed: false
+    values:
+      - ./charts/monitoring/values-kube-prometheus-stack.yaml
+    labels:
+      app: monitoring
+      component: prometheus-stack
+
   - name: front-end
     namespace: front-end
     chart: ./charts/front-end/
-    installed: false
+    createNamespace: true
+    hooks:
+      - events: ["preapply"]
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - | 
+            echo "Adding the secrets if not present"
+            if ! kubectl get secret my-secret -n front-end &>/dev/null; then
+              kubectl create secret generic my-secret --from-env-file=.env.local -n front-end
+            else
+              echo "Secret 'my-secret' already exists, skipping creation."
+            fi
+    installed: true
+
+    # TODO: Add this ingress-nginx as dep in the front-end chart and not a other release
+
+  # - name: ingress-nginx
+  #   namespace: ingress-nginx
+  #   chart: ingress-nginx/ingress-nginx
+  #   createNamespace: true
+  #   values:
+  #     - controller:
+  #         replicaCount: 2
+  #         nodeSelector:
+  #           kubernetes.io/os: linux
+  #     - defaultBackend:
+  #         nodeSelector:
+  #           kubernetes.io/os: linux
 
   - name: argocd
     namespace: argocd
     chart: argo/argo-cd
     version: 5.51.6 # or the latest version
-    createNamespace: true
-    installed: true
+    createNamespace: false
+    installed: false
     values:
       - configs:
           cm:
             application.resourceTrackingMethod: annotation
             # Optional extra config
             exec.enabled: true
+    hooks:
+      - events: ["postsync"]
+        showlogs: true
+        command: sh
+        args:
+          - -c
+          - | 
+            echo "Run the front-end"
+            kubectl apply -f ./charts/argocd/application.yaml -n argocd
 
   - name: kubernetes-dashboard
     namespace: kubernetes-dashboard

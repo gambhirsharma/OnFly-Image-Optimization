@@ -1,30 +1,27 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
+  # You can add or modify annotations here to configure Nginx-specific behavior.
+  # For example:
+  # annotations:
+  #   nginx.ingress.kubernetes.io/rewrite-target: /
+  #   nginx.ingress.kubernetes.io/ssl-redirect: "false"
   name: front-end-ingress
   namespace: front-end
-  annotations:
-    # Example NGINX annotation: Force redirect to HTTPS
-    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
-    # You might have other annotations for SSL certificate management or other NGINX behaviors
 spec:
   ingressClassName: nginx
-  tls: # <-- This section enables HTTPS
-  - hosts:
-    - onfly.gambhir.dev # <-- The domain for which you want HTTPS
-    secretName: onfly-gambhir-dev-tls # <-- The name of your Kubernetes Secret containing the TLS certificate
   rules:
-  - host: onfly.gambhir.dev # <-- This is the new host you're adding
-    http:
+  - http:
       paths:
       - backend:
           service:
-            name: front-end # Keep your existing service, or change if needed
+            name: front-end 
             port:
-              number: 80     # Keep your existing port, or change if needed
+              number: 80
         path: /
-        pathType: Prefix
-  # If you still want to route traffic for other hosts or paths, you would add them here.
-  # For example, if you had previous rules that are now being consolidated under this host,
-  # you would remove them. If you have other hosts, you'd add them as separate entries
-  # in the `rules` list, or in a separate `tls` entry if they also need HTTPS.
+        pathType: Prefix  
+  # Uncomment and modify this section if you need TLS (HTTPS)
+  # tls:
+  # - hosts:
+  #   - myapp.example.com # <-- Replace with your domain
+  #   secretName: myapp-tls-secret # <-- Replace with your TLS secret name

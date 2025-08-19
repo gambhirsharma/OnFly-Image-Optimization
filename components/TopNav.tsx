@@ -24,12 +24,12 @@ const TopNav: React.FC<TopNavProps> = ({  }) => {
     <div>
       <div className="flex gap-2">
         <Link href='/image'>
-          <Button variant={isActive('/image') ? 'default' : 'secondary'}>
+          <Button variant={isActive('/image') ? 'default' : 'outline'}>
             Image
           </Button>
         </Link>
         <Link href='/protected'>
-          <Button variant={isActive('/protected') ? 'default' : 'secondary'}>
+          <Button variant={isActive('/protected') ? 'default' : 'outline'}>
             Upload
           </Button>
         </Link>

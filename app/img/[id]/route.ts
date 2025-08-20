@@ -88,22 +88,67 @@ export async function GET(
 
 
 
-        // ** 2. Transform it and save it in new Bucket
-            const buffer = await imageData?.arrayBuffer();
-            let image = sharp(Buffer.from(buffer));
-            if (width !== null || height !== null) {
-               image = image.resize({
-                width: width ?? undefined,
-                height: height ?? undefined,
-                   fit: fit as keyof sharp.FitEnum
-               });
+        // ** 2. Check if transformed image already exists
+            const transformFileName = `${imageId}_${width || 'auto'}x${height || 'auto'}_${format}_${quality}.${format}`;
+            
+            // Try to get existing transformed image
+            const { data: existingImage, error: existingError } = await supabase
+                .storage
+                .from('transform-images')
+                .download(transformFileName);
+
+            let imageBuffer: Buffer;
+
+            if (existingImage && !existingError) {
+                // Use existing transformed image
+                imageBuffer = Buffer.from(await existingImage.arrayBuffer());
+                console.log('Using existing transformed image:', transformFileName);
+            } else {
+                // Transform the image
+                const buffer = await imageData?.arrayBuffer();
+                let image = sharp(Buffer.from(buffer));
+                if (width !== null || height !== null) {
+                   image = image.resize({
+                    width: width ?? undefined,
+                    height: height ?? undefined,
+                       fit: fit as keyof sharp.FitEnum
+                   });
+                }
+
+                imageBuffer = await image
+                   .toFormat(format as keyof sharp.FormatEnum, { quality })
+                   .toBuffer();
             }
 
-            const imageBuffer = await image
-               .toFormat(format as keyof sharp.FormatEnum, { quality })
-               .toBuffer();
+        // ** 3. Store transformed image in transform bucket with 1-day expiration (only if we just created it)
+            if (!existingImage || existingError) {
+                const { error: uploadError } = await supabase
+                    .storage
+                    .from('transform-images')
+                    .upload(transformFileName, imageBuffer, {
+                        contentType: `image/${format}`,
+                        upsert: true,
+                        cacheControl: '86400', // 1 day in seconds
+                        metadata: {
+                            originalId: imageId,
+                            width: width?.toString() || 'auto',
+                            height: height?.toString() || 'auto',
+                            format: format,
+                            quality: quality.toString(),
+                            fit: fit,
+                            createdAt: new Date().toISOString()
+                        }
+                    });
 
-        // 3. Now server it the transformed image
+                if (uploadError) {
+                    console.error('Failed to upload transformed image:', uploadError);
+                    // Continue serving the image even if upload fails
+                } else {
+                    console.log('Successfully uploaded transformed image:', transformFileName);
+                }
+            }
+
+        // ** 4. Now serve the transformed image
         return new NextResponse(imageBuffer, {
            headers: {
                'Content-Type': `image/${format}`,

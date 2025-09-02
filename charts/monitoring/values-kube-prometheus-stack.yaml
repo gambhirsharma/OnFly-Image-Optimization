@@ -1,0 +1,30 @@
+# aks-monitoring/releases/monitoring/values-kube-prometheus-stack.yaml
+grafana:
+  service:
+    type: LoadBalancer # Expose Grafana via an Azure Load Balancer
+  adminPassword: "yourSuperSecurePassword" # <<< CHANGE THIS! Use a strong password!
+  # You might consider using a Kubernetes secret for the password in a real scenario
+  # e.g., adminPassword: (( env "GRAFANA_ADMIN_PASSWORD" )) and setting it as an env var,
+  # or even better, using external secrets/Vault.
+
+# Optional: Customize resource requests/limits for components if needed
+prometheus:
+  prometheusSpec:
+    retention: 7d # Keep metrics for 7 days
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: "default" # Or your preferred storage class (e.g., azurefile-premium, azure-disk)
+          resources:
+            requests:
+              storage: 20Gi # Adjust storage size as needed
+
+# Disable or enable other components if you don't need them
+# alertmanager:
+#   enabled: false
+# kubeEtcd:
+#   enabled: false
+# kubeScheduler:
+#   enabled: false
+# kubeControllerManager:
+#   enabled: false

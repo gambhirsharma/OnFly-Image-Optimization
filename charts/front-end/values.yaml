@@ -9,7 +9,7 @@ replicaCount: 1
 image:
   repository: gambhir/supabase-onfly
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ecdde3e
+  tag: a292d6d
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
 

@@ -137,28 +137,23 @@ const DropzoneContent = ({ className }: { className?: string }) => {
                   />
                 )}
               </div>
-            )
-                    .join(", ")}
-                </p>
-              ) : loading && !isSuccessfullyUploaded ? (
-                <p className="text-xs text-muted-foreground">
-                  Uploading file...
-                </p>
-              ) : !!fileError ? (
-                <p className="text-xs text-destructive">
-                  Failed to upload: {fileError.message}
-                </p>
-              ) : isSuccessfullyUploaded ? (
-                <p className="text-xs text-primary">
-                  Successfully uploaded file
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  {formatBytes(file.size, 2)}
-                </p>
-              )}
-            </div>
-
+            ) : loading && !isSuccessfullyUploaded ? (
+              <p className="text-xs text-muted-foreground">
+                Uploading file...
+              </p>
+            ) : !!fileError ? (
+              <p className="text-xs text-destructive">
+                Failed to upload: {fileError.message}
+              </p>
+            ) : isSuccessfullyUploaded ? (
+              <p className="text-xs text-primary">
+                Successfully uploaded file
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                {formatBytes(file.size, 2)}
+              </p>
+            )}
             {!loading && !isSuccessfullyUploaded && (
               <Button
                 size="icon"

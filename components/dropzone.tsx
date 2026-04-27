@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { type UseSupabaseUploadReturn } from "@/hooks/use-supabase-upload";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, File, Loader2, Upload, X } from "lucide-react";
-import Image from "next/image";
 import {
   createContext,
   type PropsWithChildren,
@@ -125,35 +124,20 @@ const DropzoneContent = ({ className }: { className?: string }) => {
             key={`${file.name}-${idx}`}
             className="flex items-center gap-x-4 border-b py-2 first:mt-4 last:mb-4 "
           >
-            {file.type.startsWith("image/") ? (
+{file.type.startsWith("image/") ? (
               <div className="h-10 w-10 rounded border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-               <img
-                 src={file.preview || ""}
-                 alt={file.name}
-                 width={40}
-                 height={40}
-                  className="object-cover"
-               />
+                {file.preview && (
+                  <img
+                    src={file.preview}
+                    alt={file.name}
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                  />
+                )}
               </div>
-            ) : (
-              <div className="h-10 w-10 rounded border bg-muted flex items-center justify-center">
-                <File size={18} />
-              </div>
-            )}
-
-            <div className="shrink grow flex flex-col items-start truncate">
-              <p title={file.name} className="text-sm truncate max-w-full">
-                {file.name}
-              </p>
-              {file.errors.length > 0 ? (
-                <p className="text-xs text-destructive">
-                  {file.errors
-                    .map((e) =>
-                      e.message.startsWith("File is larger than")
-                        ? `File is larger than ${formatBytes(maxFileSize, 2)} (Size: ${formatBytes(file.size, 2)})`
-                        : e.message,
-                    )
+            )
                     .join(", ")}
                 </p>
               ) : loading && !isSuccessfullyUploaded ? (

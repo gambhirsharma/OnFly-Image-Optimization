@@ -1,170 +1,195 @@
 // app/img/[id]/route.ts
-//import { createClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/client'
-//
-//export const runtime = 'edge'; // Optional: Use edge runtime for better performance
-//
+import { createClient } from '@/utils/supabase/server';
+import { createServiceRoleClient } from '@/utils/supabase/service';
+
+const ALLOWED_FORMATS = ['webp', 'jpeg', 'jpg', 'png', 'avif'];
+const ALLOWED_FIT_VALUES = ['cover', 'contain', 'fill', 'inside', 'outside'];
+const MIN_QUALITY = 1;
+const MAX_QUALITY = 100;
+const MAX_DIMENSION = 8192;
+const MIN_DIMENSION = 1;
+
+function validateAndParseInt(value: string | null, min: number, max: number, defaultValue: number): number {
+  if (value === null) return defaultValue;
+  const parsed = parseInt(value, 10);
+  if (isNaN(parsed) || parsed < min || parsed > max) return defaultValue;
+  return parsed;
+}
 
 export async function GET(
     request: NextRequest,
- // context: { params: { id: string } }
 ) {
-
-    // const { params } = context;
-    // const imageId = params.id;
   const url = new URL(request.url);
 
-  // ✅ extract the ID manually from the pathname
   const pathMatch = url.pathname.match(/\/img\/([^\/]+)/);
   const imageId = pathMatch?.[1];
 
-  if (!imageId) {
-    return new NextResponse(JSON.stringify({ error: 'Image ID not found in URL', id: imageId }), {
+  if (!imageId || typeof imageId !== 'string' || imageId.length > 100) {
+    return new NextResponse(JSON.stringify({ error: 'Invalid image ID', id: imageId }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     });
   }
-    try {
-        // ** 0. get data from the url **
-        // const imageId = params.id;
-        const { searchParams } = new URL(request.url);
-        // Parse transformation parameters
-        const width = searchParams.get('w') ? parseInt(searchParams.get('w')!) : null;
-        const height = searchParams.get('h') ? parseInt(searchParams.get('h')!) : null;
-        const format = searchParams.get('format') || 'webp';
-        const quality = searchParams.get('q') ? parseInt(searchParams.get('q')!) : 80;
-        const fit = searchParams.get('fit') || 'cover';
 
-        const supabase = createClient()
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(imageId)) {
+    return new NextResponse(JSON.stringify({ error: 'Invalid image ID format' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 
-        // ** 1. first get the Image using the id **
-        // get image location for the id
-            const { data: imageAsset, error: dbError } = await supabase
-              .from('image_assets')
-              .select('file_path')
-              .eq('id', imageId)
-              .single();
+  try {
+    const { searchParams } = new URL(request.url);
+    
+    const rawWidth = searchParams.get('w');
+    const rawHeight = searchParams.get('h');
+    const rawFormat = searchParams.get('format');
+    const rawQuality = searchParams.get('q');
+    const rawFit = searchParams.get('fit');
+    
+    const width = validateAndParseInt(rawWidth, MIN_DIMENSION, MAX_DIMENSION, -1);
+    const height = validateAndParseInt(rawHeight, MIN_DIMENSION, MAX_DIMENSION, -1);
+    const quality = validateAndParseInt(rawQuality, MIN_QUALITY, MAX_QUALITY, 80);
+    
+    if (quality === null) {
+      return new NextResponse(JSON.stringify({ error: 'Invalid quality parameter' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const format = (rawFormat?.toLowerCase() || 'webp') as string;
+    if (!ALLOWED_FORMATS.includes(format)) {
+      return new NextResponse(JSON.stringify({ error: 'Invalid format', allowed: ALLOWED_FORMATS }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const fit = (rawFit?.toLowerCase() || 'cover') as string;
+    if (!ALLOWED_FIT_VALUES.includes(fit)) {
+      return new NextResponse(JSON.stringify({ error: 'Invalid fit parameter', allowed: ALLOWED_FIT_VALUES }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
 
-            if (dbError || !imageAsset) {
-              return new NextResponse('Image not found', { status: 404 });
-            }
-        // Get the original image from storage
-        //
-        const { data: imageData, error: storageError } = await supabase
-            .storage
-            .from('upload-image')
-            .download(imageAsset.file_path);
-        //
-         // const { data: imageData, error: storageError } = await supabase
-         // .storage
-         // .from('upload-image')
-         // .download(`images/picnew.jpeg`);
+    const supabaseService = await createServiceRoleClient();
+    const supabase = await createClient();
+    
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    const { data: imageAsset, error: dbError } = await supabaseService
+      .from('image_assets')
+      .select('file_path, user_id')
+      .eq('id', imageId)
+      .single();
 
-        // console.log(`image data: ${imageData}`)
+    if (dbError || !imageAsset) {
+      return new NextResponse('Image not found', { status: 404 });
+    }
+    
+    if (imageAsset.user_id && imageAsset.user_id !== user?.id) {
+      return new NextResponse('Unauthorized', { status: 403 });
+    }
 
-        //const Img = imageData?.arrayBuffer();
-        // const imageBuffer = await imageData?.arrayBuffer();
-        //
-        if (storageError) {
-            return new NextResponse(JSON.stringify({
-                mess: "fail to retrieve the image", 
-                error: storageError, 
-                path: imageAsset.file_path
-                }), 
-                { status: 500, headers: {
-                'Content-Type': 'application/json',
-            } }
-            );
-        }
+    const { data: imageData, error: storageError } = await supabaseService
+        .storage
+        .from('upload-image')
+        .download(imageAsset.file_path);
 
-        if (!imageData) {
+    if (storageError) {
+        return new NextResponse(JSON.stringify({
+            mess: "fail to retrieve the image", 
+            error: storageError.message
+        }), { 
+            status: 500, 
+            headers: {
+            'Content-Type': 'application/json',
+        } }
+        );
+    }
+
+    if (!imageData) {
         return new NextResponse(
             JSON.stringify({ mess: "No image data received" }),
             { status: 400, headers: { 'Content-Type': 'application/json' } }
         );
     }
 
+    const cacheKey = `${imageId}_${width}_${height}_${format}_${quality}_${fit}`;
+    const transformFileName = `${cacheKey.replace(/[^a-zA-Z0-9]/g, '_')}.${format}`;
+    
+    const { data: existingImage, error: existingError } = await supabaseService
+        .storage
+        .from('transform-images')
+        .download(transformFileName);
 
+    let imageBuffer: Buffer;
 
-        // ** 2. Check if transformed image already exists
-            const transformFileName = `${imageId}_${width || 'auto'}x${height || 'auto'}_${format}_${quality}.${format}`;
-            
-            // Try to get existing transformed image
-            const { data: existingImage, error: existingError } = await supabase
-                .storage
-                .from('transform-images')
-                .download(transformFileName);
+    if (existingImage && !existingError) {
+        imageBuffer = Buffer.from(await existingImage.arrayBuffer());
+    } else {
+        const buffer = await imageData.arrayBuffer();
+        let image = sharp(Buffer.from(buffer));
+        
+        if (width !== -1 || height !== -1) {
+           image = image.resize({
+            width: width !== -1 ? width : undefined,
+            height: height !== -1 ? height : undefined,
+            fit: fit as keyof sharp.FitEnum,
+            withoutEnlargement: true,
+           });
+        }
 
-            let imageBuffer: Buffer;
-
-            if (existingImage && !existingError) {
-                // Use existing transformed image
-                imageBuffer = Buffer.from(await existingImage.arrayBuffer());
-                console.log('Using existing transformed image:', transformFileName);
-            } else {
-                // Transform the image
-                const buffer = await imageData?.arrayBuffer();
-                let image = sharp(Buffer.from(buffer));
-                if (width !== null || height !== null) {
-                   image = image.resize({
-                    width: width ?? undefined,
-                    height: height ?? undefined,
-                       fit: fit as keyof sharp.FitEnum
-                   });
-                }
-
-                imageBuffer = await image
-                   .toFormat(format as keyof sharp.FormatEnum, { quality })
-                   .toBuffer();
-            }
-
-        // ** 3. Store transformed image in transform bucket with 1-day expiration (only if we just created it)
-            if (!existingImage || existingError) {
-                const { error: uploadError } = await supabase
-                    .storage
-                    .from('transform-images')
-                    .upload(transformFileName, imageBuffer, {
-                        contentType: `image/${format}`,
-                        upsert: true,
-                        cacheControl: '86400', // 1 day in seconds
-                        metadata: {
-                            originalId: imageId,
-                            width: width?.toString() || 'auto',
-                            height: height?.toString() || 'auto',
-                            format: format,
-                            quality: quality.toString(),
-                            fit: fit,
-                            createdAt: new Date().toISOString()
-                        }
-                    });
-
-                if (uploadError) {
-                    console.error('Failed to upload transformed image:', uploadError);
-                    // Continue serving the image even if upload fails
-                } else {
-                    console.log('Successfully uploaded transformed image:', transformFileName);
-                }
-            }
-
-        // ** 4. Now serve the transformed image
-        return new NextResponse(imageBuffer, {
-           headers: {
-               'Content-Type': `image/${format}`,
-               'Cache-Control': 'public, max-age=31536000',
-               'ETag': `"${imageBuffer.length.toString(16)}"`
-           }
-        });
-        // return NextResponse.json({"message": `the image path is ${imageAsset.file_path}`, "imageData": `Image data: ${Img}`})
-        //
-        // return new NextResponse(imageBuffer, {
-        //    headers: { 'Content-Type': `image/${format}` /* etc */ }
-        // });
-
-        // return NextResponse.json({mess: "sucess"})
+        imageBuffer = await image
+           .toFormat(format as keyof sharp.FormatEnum, { quality })
+           .toBuffer();
+           
+        if (imageBuffer.length > 50 * 1024 * 1024) {
+          return new NextResponse(JSON.stringify({ error: 'Image too large after processing' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
     }
-    catch(error) {
-        return NextResponse.json({"error": (error as Error).message})
+
+    if (!existingImage || existingError) {
+        await supabaseService
+            .storage
+            .from('transform-images')
+            .upload(transformFileName, imageBuffer, {
+                contentType: `image/${format}`,
+                upsert: true,
+                cacheControl: '86400',
+                metadata: {
+                    originalId: imageId,
+                    width: width?.toString() || 'auto',
+                    height: height?.toString() || 'auto',
+                    format: format,
+                    quality: quality.toString(),
+                    fit: fit,
+                    createdAt: new Date().toISOString()
+                }
+            });
     }
+
+    const etag = Buffer.from(`${imageBuffer.length}-${Date.now()}`).toString('base64').slice(0, 32);
+    
+    return new NextResponse(imageBuffer, {
+       headers: {
+           'Content-Type': `image/${format}`,
+           'Cache-Control': 'public, max-age=31536000, immutable',
+           'ETag': `"${etag}"`,
+           'X-Content-Type-Options': 'nosniff',
+           'X-Frame-Options': 'DENY',
+       }
+    });
+  }
+  catch(error) {
+    return NextResponse.json({"error": "Internal server error"}, { status: 500 });
+  }
 }

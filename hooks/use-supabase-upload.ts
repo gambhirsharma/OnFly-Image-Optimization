@@ -6,7 +6,23 @@ import {
   useDropzone,
 } from "react-dropzone";
 
-const supabase = createClient();
+const MAX_FILENAME_LENGTH = 255;
+const DANGEROUS_PATTERNS = [/\.\./, /[<>:"|?*]/, /[\x00-\x1f]/];
+
+function sanitizeFilename(filename: string): string {
+  let sanitized = filename.replace(/[<>:"|?*]/g, '_');
+  sanitized = sanitized.replace(/\.\.+/g, '_');
+  sanitized = sanitized.replace(/[\x00-\x1f]/g, '');
+  sanitized = sanitized.slice(0, MAX_FILENAME_LENGTH);
+  if (!sanitized || sanitized === '.' || sanitized === '..') {
+    sanitized = `file_${Date.now()}`;
+  }
+  return sanitized;
+}
+
+function isPathTraversal(filename: string): boolean {
+  return DANGEROUS_PATTERNS.some(pattern => pattern.test(filename));
+}
 
 interface FileWithPreview extends File {
   preview?: string;
@@ -23,49 +39,20 @@ export interface UploadResponse {
 }
 
 type UseSupabaseUploadOptions = {
-  /**
-   * Name of bucket to upload files to in your Supabase project
-   */
   bucketName: string;
-  /**
-   * Folder to upload files to in the specified bucket within your Supabase project.
-   *
-   * Defaults to uploading files to the root of the bucket
-   *
-   * e.g If specified path is `test`, your file will be uploaded as `test/file_name`
-   */
   path?: string;
-  /**
-   * Allowed MIME types for each file upload (e.g `image/png`, `text/html`, etc). Wildcards are also supported (e.g `image/*`).
-   *
-   * Defaults to allowing uploading of all MIME types.
-   */
   allowedMimeTypes?: string[];
-  /**
-   * Maximum upload size of each file allowed in bytes. (e.g 1000 bytes = 1 KB)
-   */
   maxFileSize?: number;
-  /**
-   * Maximum number of files allowed per upload.
-   */
   maxFiles?: number;
-  /**
-   * The number of seconds the asset is cached in the browser and in the Supabase CDN.
-   *
-   * This is set in the Cache-Control: max-age=<seconds> header. Defaults to 3600 seconds.
-   */
   cacheControl?: number;
-  /**
-   * When set to true, the file is overwritten if it exists.
-   *
-   * When set to false, an error is thrown if the object already exists. Defaults to `false`
-   */
   upsert?: boolean;
 };
 
 type UseSupabaseUploadReturn = ReturnType<typeof useSupabaseUpload>;
 
 const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
+  const supabase = createClient();
+  
   const {
     bucketName,
     path,
@@ -201,8 +188,15 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
     const responses: UploadResponse[] = await Promise.all(
       filesToUpload.map(async (file) => {
         try {
-          // 1. Upload the file to bucket
-          const filePath = path ? `${path}/${file.name}` : file.name;
+          const safeFilename = sanitizeFilename(file.name);
+          const safePath = path ? sanitizeFilename(path) : '';
+          
+          if (isPathTraversal(safeFilename) || isPathTraversal(safePath)) {
+            throw new Error('Invalid filename or path');
+          }
+          
+          const filePath = safePath ? `${safePath}/${safeFilename}` : safeFilename;
+          
           const { data: uploadData, error: uploadError } =
             await supabase.storage.from(bucketName).upload(filePath, file, {
               cacheControl: cacheControl.toString(),
@@ -212,9 +206,7 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
           if (uploadError)
             throw new Error(`Upload failed: ${uploadError.message}`);
 
-          // 2. Get the public URL for the uploaded file
           const storedFilePath = uploadData.path;
-          //const storedFilePath =  !!path ? `${path}/${file.name}` : file.name
 
           const { data: urlData, error: urlError } = await supabase.storage
             .from(bucketName)
@@ -223,12 +215,11 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
           if (urlError)
             throw new Error(`Failed to create signed URL: ${urlError.message}`);
 
-          // 3. Store mapping in database
           const { data: imageRecord, error: dbError } = await supabase
             .from("image_assets")
             .insert({
               file_path: storedFilePath,
-              original_name: file.name,
+              original_name: safeFilename,
               mime_type: file.type,
               size: file.size,
             })
@@ -238,7 +229,6 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
           if (dbError)
             throw new Error(`Database insertion failed: ${dbError.message}`);
 
-          // 4. Return success response
           return {
             name: file.name,
             success: true,
@@ -247,13 +237,14 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
             url: urlData.signedUrl,
             id: imageRecord.id,
           };
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
           return {
             name: file.name,
             success: false,
-            message: error.message,
-            path: error.path,
-            url: error.url,
+            message: errorMessage,
+            path: undefined,
+            url: undefined,
           };
         }
       }),
@@ -281,6 +272,7 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
     );
 
     setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [files, path, bucketName, errors, successes, cacheControl, upsert]);
 
   useEffect(() => {
@@ -302,6 +294,14 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
         setFiles(newFiles);
       }
     }
+
+    return () => {
+      files.forEach((file) => {
+        if (file.preview) {
+          URL.revokeObjectURL(file.preview);
+        }
+      });
+    };
   }, [files, files.length, setFiles, maxFiles]);
 
   return {

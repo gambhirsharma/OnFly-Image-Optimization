@@ -54,13 +54,6 @@ export async function GET(
     const height = validateAndParseInt(rawHeight, MIN_DIMENSION, MAX_DIMENSION, -1);
     const quality = validateAndParseInt(rawQuality, MIN_QUALITY, MAX_QUALITY, 80);
     
-    if (quality === null) {
-      return new NextResponse(JSON.stringify({ error: 'Invalid quality parameter' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-    
     const format = (rawFormat?.toLowerCase() || 'webp') as string;
     if (!ALLOWED_FORMATS.includes(format)) {
       return new NextResponse(JSON.stringify({ error: 'Invalid format', allowed: ALLOWED_FORMATS }), {
@@ -103,8 +96,8 @@ export async function GET(
 
     if (storageError) {
         return new NextResponse(JSON.stringify({
-            mess: "fail to retrieve the image", 
-            error: storageError.message
+            error: "Failed to retrieve the image", 
+            details: storageError.message
         }), { 
             status: 500, 
             headers: {
@@ -177,7 +170,7 @@ export async function GET(
             });
     }
 
-    const etag = Buffer.from(`${imageBuffer.length}-${Date.now()}`).toString('base64').slice(0, 32);
+    const etag = Buffer.from(imageBuffer).toString('base64').substring(0, 32);
     
     return new NextResponse(imageBuffer, {
        headers: {

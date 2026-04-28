@@ -294,7 +294,9 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
         setFiles(newFiles);
       }
     }
+  }, [files, files.length, setFiles, maxFiles]);
 
+  useEffect(() => {
     return () => {
       files.forEach((file) => {
         if (file.preview) {
@@ -302,7 +304,7 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
         }
       });
     };
-  }, [files, files.length, setFiles, maxFiles]);
+  }, []);
 
   return {
     fileUrls,

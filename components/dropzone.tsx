@@ -137,23 +137,27 @@ const DropzoneContent = ({ className }: { className?: string }) => {
                   />
                 )}
               </div>
-            ) : loading && !isSuccessfullyUploaded ? (
-              <p className="text-xs text-muted-foreground">
-                Uploading file...
-              </p>
-            ) : !!fileError ? (
-              <p className="text-xs text-destructive">
-                Failed to upload: {fileError.message}
-              </p>
-            ) : isSuccessfullyUploaded ? (
-              <p className="text-xs text-primary">
-                Successfully uploaded file
-              </p>
             ) : (
-              <p className="text-xs text-muted-foreground">
-                {formatBytes(file.size, 2)}
-              </p>
+              <div className="h-10 w-10 rounded border overflow-hidden shrink-0 bg-muted flex items-center justify-center">
+                <File size={18} />
+              </div>
             )}
+            <div className="flex flex-col flex-1 min-w-0">
+              <p className="text-sm truncate">{file.name}</p>
+              {file.errors.length > 0 ? (
+                <p className="text-xs text-destructive">
+                  {file.errors.map((e) => e.message).join(", ")}
+                </p>
+              ) : loading && !isSuccessfullyUploaded ? (
+                <p className="text-xs text-muted-foreground">Uploading...</p>
+              ) : isSuccessfullyUploaded ? (
+                <p className="text-xs text-primary">Uploaded</p>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  {formatBytes(file.size, 2)}
+                </p>
+              )}
+            </div>
             {!loading && !isSuccessfullyUploaded && (
               <Button
                 size="icon"
@@ -169,7 +173,7 @@ const DropzoneContent = ({ className }: { className?: string }) => {
       })}
       {exceedMaxFiles && (
         <p className="text-sm text-left mt-2 text-destructive">
-          You may upload only up to {maxFiles} files, please remove{" "}
+          You may upload only up to {maxFiles} files ({formatBytes(maxFileSize, 2)} max per file), please remove{" "}
           {files.length - maxFiles} file
           {files.length - maxFiles > 1 ? "s" : ""}.
         </p>

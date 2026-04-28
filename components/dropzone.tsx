@@ -173,7 +173,8 @@ const DropzoneContent = ({ className }: { className?: string }) => {
       })}
       {exceedMaxFiles && (
         <p className="text-sm text-left mt-2 text-destructive">
-          You may upload only up to {maxFiles} files ({formatBytes(maxFileSize, 2)} max per file), please remove{" "}
+          You may upload only up to {maxFiles} files
+          {Number.isFinite(maxFileSize) ? ` (${formatBytes(maxFileSize, 2)} max per file)` : ""}, please remove{" "}
           {files.length - maxFiles} file
           {files.length - maxFiles > 1 ? "s" : ""}.
         </p>

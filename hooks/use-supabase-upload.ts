@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type FileError,
   type FileRejection,
@@ -51,7 +51,8 @@ type UseSupabaseUploadOptions = {
 type UseSupabaseUploadReturn = ReturnType<typeof useSupabaseUpload>;
 
 const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
+  const filesRef = useRef<FileWithPreview[]>([]);
   
   const {
     bucketName,
@@ -294,11 +295,14 @@ const useSupabaseUpload = (options: UseSupabaseUploadOptions) => {
         setFiles(newFiles);
       }
     }
+
+    // Track latest files for cleanup
+    filesRef.current = files;
   }, [files, files.length, setFiles, maxFiles]);
 
   useEffect(() => {
     return () => {
-      files.forEach((file) => {
+      filesRef.current.forEach((file) => {
         if (file.preview) {
           URL.revokeObjectURL(file.preview);
         }

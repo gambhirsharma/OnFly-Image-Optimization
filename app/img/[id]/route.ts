@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 // app/img/[id]/route.ts
 import sharp from 'sharp';
 import { NextRequest, NextResponse } from 'next/server';
@@ -154,14 +155,14 @@ export async function GET(
         await supabaseService
             .storage
             .from('transform-images')
-            .upload(transformFileName, imageBuffer, {
+.upload(transformFileName, imageBuffer, {
                 contentType: `image/${format}`,
                 upsert: true,
                 cacheControl: '86400',
                 metadata: {
                     originalId: imageId,
-                    width: width?.toString() || 'auto',
-                    height: height?.toString() || 'auto',
+                    width: width === -1 ? 'auto' : width.toString(),
+                    height: height === -1 ? 'auto' : height.toString(),
                     format: format,
                     quality: quality.toString(),
                     fit: fit,
@@ -170,7 +171,7 @@ export async function GET(
             });
     }
 
-    const etag = Buffer.from(imageBuffer).toString('base64').substring(0, 32);
+    const etag = crypto.createHash('sha256').update(imageBuffer).digest('hex').substring(0, 32);
     
     return new NextResponse(imageBuffer, {
        headers: {

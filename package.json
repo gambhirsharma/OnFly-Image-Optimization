@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.1.1",
@@ -23,14 +24,16 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-dropzone": "^14.3.8",
-    "sharp": "^0.34.1"
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@types/node": "22.10.2",
     "@types/react": "^19.0.2",
-    "@types/react-dom": "19.0.2",
+    "@types/react-dom": "^19.0.2",
     "@types/sharp": "^0.32.0",
-    "postcss": "8.5.23",
+    "eslint": "^8",
+    "eslint-config-next": "^16.3.2",
+    "postcss": "^8.5.26",
     "tailwind-merge": "^2.5.2",
     "tailwindcss": "3.4.17",
     "tailwindcss-animate": "^1.0.7",

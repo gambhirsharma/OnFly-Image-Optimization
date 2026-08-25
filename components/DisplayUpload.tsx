@@ -7,13 +7,14 @@ interface DisplayUploadProps {}
 
 type FileItem = {
   name: string
-  path: string
+  path: string           // e.g. "images/foo.png"
   signedUrl: string
-  dbId: string | null
+  dbId: string | null    // the id from your image_assets table
 }
 
+const supabase = createClient()
+
 const DisplayUpload: React.FC<DisplayUploadProps> = () => {
-  const supabase = createClient()
   const [items, setItems] = useState<FileItem[]>([])
   const [error, setError] = useState<string | null>(null)
   const [origin, setOrigin] = useState('')
@@ -89,9 +90,8 @@ const DisplayUpload: React.FC<DisplayUploadProps> = () => {
 
     fetchData().catch((err) => {
       console.error(err)
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(err.message || 'Unknown error')
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (error) return <div className="text-red-600">Error: {error}</div>

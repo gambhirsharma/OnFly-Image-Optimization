@@ -85,14 +85,14 @@ releases:
   - name: kubernetes-dashboard
     namespace: kubernetes-dashboard
     chart: kubernetes-dashboard/kubernetes-dashboard
-    installed: false
+    installed: true
 
   - name: supabase
     chart: bitnami/supabase
     namespace: supabase
     version: 5.3.6
-    createNamespace: false
-    installed: false
+    createNamespace: true
+    installed: true
     values: 
       - ./charts/supabase/values.yaml
     set:

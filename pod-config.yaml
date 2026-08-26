@@ -1,0 +1,160 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: "2025-08-01T11:39:11Z"
+  generateName: front-end-55fdb5d86b-
+  labels:
+    app.kubernetes.io/instance: front-end
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: front-end
+    app.kubernetes.io/version: 1.16.0
+    helm.sh/chart: front-end-0.1.0
+    pod-template-hash: 55fdb5d86b
+  name: front-end-55fdb5d86b-99f5d
+  namespace: front-end
+  ownerReferences:
+  - apiVersion: apps/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ReplicaSet
+    name: front-end-55fdb5d86b
+    uid: bdca1b10-3ccb-4f6d-bc69-65625682b30d
+  resourceVersion: "16440"
+  uid: 4e107e85-5775-4683-89d2-5c0359199df9
+spec:
+  containers:
+  - args:
+    - node
+    - server.js
+    command:
+    - /entry.sh
+    env:
+    - name: NEXT_PUBLIC_SUPABASE_URL
+      valueFrom:
+        secretKeyRef:
+          key: NEXT_PUBLIC_SUPABASE_URL
+          name: my-secret
+    - name: NEXT_PUBLIC_SUPABASE_ANON_KEY
+      valueFrom:
+        secretKeyRef:
+          key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+          name: my-secret
+    image: gambhir/supabase-onfly:dd2dd08
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /
+        port: http
+        scheme: HTTP
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    name: front-end
+    ports:
+    - containerPort: 3000
+      name: http
+      protocol: TCP
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /
+        port: http
+        scheme: HTTP
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-qq49f
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: aks-nodepool1-24390061-vmss000000
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: front-end
+  serviceAccountName: front-end
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-qq49f
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2025-08-01T11:39:12Z"
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2025-08-01T11:39:11Z"
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2025-08-01T11:39:13Z"
+    status: "True"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2025-08-01T11:39:13Z"
+    status: "True"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2025-08-01T11:39:11Z"
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://90088f71cda99489b2d222ab7e96a4a9bb50f66fce1eecefd06ac2baf14d130d
+    image: docker.io/gambhir/supabase-onfly:dd2dd08
+    imageID: docker.io/gambhir/supabase-onfly@sha256:05698cb8206a5c1024a005a9ace018b78fb9c2651e3456cb5348918cfd524ddb
+    lastState: {}
+    name: front-end
+    ready: true
+    restartCount: 0
+    started: true
+    state:
+      running:
+        startedAt: "2025-08-01T11:39:11Z"
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-qq49f
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 10.224.0.4
+  hostIPs:
+  - ip: 10.224.0.4
+  phase: Running
+  podIP: 10.244.0.77
+  podIPs:
+  - ip: 10.244.0.77
+  qosClass: BestEffort
+  startTime: "2025-08-01T11:39:11Z"

@@ -7,3 +7,7 @@
     - [ ] Implement this in supabase functions and Vercel edge functions
     - [ ] add image to `output-image` bucket and delete it only after 3-4 days
     - [ ] cache the image in the browser for 3-4 days
+
+## DevOps
+    - [ ] Implement the ingress in k8s
+    - [ ] Add monitoring in k8s

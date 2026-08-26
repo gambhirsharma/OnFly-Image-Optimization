@@ -1,0 +1,5 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  - role: control-plane
+    image: kindest/node:v1.33.1@sha256:8a8c830d2f54b8f5b3a01215fc5013becc9ef682c1714071890d01b0b6fbcf7b  # amd64 image

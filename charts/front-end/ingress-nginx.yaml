@@ -3,23 +3,29 @@ kind: Ingress
 metadata:
   # You can add or modify annotations here to configure Nginx-specific behavior.
   # For example:
-  # annotations:
-  #   nginx.ingress.kubernetes.io/rewrite-target: /
-  #   nginx.ingress.kubernetes.io/ssl-redirect: "false"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
   name: front-end-ingress
   namespace: front-end
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - gambhir.italynorth.cloudapp.azure.com
+      secretName: tls-secret
   rules:
-  - http:
-      paths:
-      - backend:
-          service:
-            name: front-end 
-            port:
-              number: 80
-        path: /
-        pathType: Prefix  
+    - host: gambhir.italynorth.cloudapp.azure.com # <-- Corrected indentation here
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: front-end
+                port:
+                  number: 80
   # Uncomment and modify this section if you need TLS (HTTPS)
   # tls:
   # - hosts:

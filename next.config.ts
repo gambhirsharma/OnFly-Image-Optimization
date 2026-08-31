@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // Vercel has its own optimized output; `standalone` breaks Vercel's nft tracing
+  // (ENOENT .next/next-server.js.nft.json) - only use it for Docker/self-host.
+  output: process.env.VERCEL ? undefined : "standalone",
   images: {
     remotePatterns: [
       {

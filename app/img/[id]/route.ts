@@ -1,6 +1,6 @@
 // app/img/[id]/route.ts
 //import { createClient } from '@supabase/supabase-js';
-import sharp from 'sharp';
+import sharp, { type FitEnum, type FormatEnum } from 'sharp';
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/client'
 //
@@ -111,12 +111,12 @@ export async function GET(
                    image = image.resize({
                     width: width ?? undefined,
                     height: height ?? undefined,
-                       fit: fit as keyof sharp.FitEnum
+                       fit: fit as keyof FitEnum
                    });
                 }
 
                 imageBuffer = await image
-                   .toFormat(format as keyof sharp.FormatEnum, { quality })
+                   .toFormat(format as keyof FormatEnum, { quality })
                    .toBuffer();
             }
 
